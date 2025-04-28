@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="banner.png" alt="EnvLockr - Secure Your Environment Variables Locally" />
+</p>
 
 # 🔐 EnvLockr CLI
 
