@@ -92,15 +92,20 @@ All your secrets are encrypted and stored in:
 
 If you find EnvLockr useful, you can support its development by [becoming a sponsor](https://github.com/sponsors/RohanRatwani).
 
-## 📥 Coming Soon
+## 📥 What’s Next?
 
-We are working on:
-
-- Premium features like environment injection
+We’re exploring new features for EnvLockr, including:
+- Advanced environment injection
 - Project-specific vaults
-- Desktop UI app
 
-👉 [Join the Waitlist](https://forms.gle/example)
+We’re also considering future enhancements like a desktop UI app or IDE/plugin integrations (e.g., VS Code)—let us know which would be more useful for your workflow!
+
+👉 [Join the Waitlist](https://forms.gle/example) and share your thoughts!
+
+## 💡 We Want Your Feedback!
+
+Which features would you love to see in EnvLockr?  
+Reply in [GitHub Issues](https://github.com/RohanRatwani/envlockr-cli/issues), join the waitlist, or reach out on Twitter!
 
 ## 🛡 License
 
