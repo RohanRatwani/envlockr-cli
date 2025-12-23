@@ -73,6 +73,46 @@ def copy_secret(args):
     pyperclip.copy(decrypted)
     print(f"📋 Secret '{args.name}' copied to clipboard.")
 
+def delete_secret(args):
+    vault = load_vault()
+    if args.name not in vault:
+        print("❌ Secret not found.")
+        return
+    del vault[args.name]
+    save_vault(vault)
+    print(f"🗑️ Secret '{args.name}' deleted successfully.")
+
+def update_secret(args):
+    fernet = load_or_create_key()
+    vault = load_vault()
+    if args.name not in vault:
+        print(f"❌ Secret '{args.name}' not found. Use 'add' to create a new secret.")
+        return
+    secret = getpass.getpass(prompt="Enter new secret value: ")
+    encrypted = fernet.encrypt(secret.encode()).decode()
+    vault[args.name] = encrypted
+    save_vault(vault)
+    print(f"✅ Secret '{args.name}' updated successfully.")
+
+def export_secrets(args):
+    fernet = load_or_create_key()
+    vault = load_vault()
+    if not vault:
+        print("ℹ️ No secrets to export.")
+        return
+    
+    output_file = args.output if args.output else ".env"
+    
+    try:
+        with open(output_file, 'w') as f:
+            for name, encrypted_value in vault.items():
+                decrypted = fernet.decrypt(encrypted_value.encode()).decode()
+                f.write(f"{name}={decrypted}\n")
+        print(f"✅ Secrets exported to '{output_file}'")
+        print(f"⚠️  Remember: Add '{output_file}' to .gitignore to prevent leaks!")
+    except Exception as e:
+        print(f"❌ Error exporting secrets: {e}")
+
 def main():
     parser = argparse.ArgumentParser(description="EnvLockr CLI - Secure Local Secrets Manager")
     subparsers = parser.add_subparsers()
@@ -95,6 +135,21 @@ def main():
     copy_parser = subparsers.add_parser('copy', help='Copy a secret to clipboard')
     copy_parser.add_argument('name', help='Name of the secret')
     copy_parser.set_defaults(func=copy_secret)
+
+    # Delete
+    delete_parser = subparsers.add_parser('delete', help='Delete a secret')
+    delete_parser.add_argument('name', help='Name of the secret')
+    delete_parser.set_defaults(func=delete_secret)
+
+    # Update
+    update_parser = subparsers.add_parser('update', help='Update an existing secret')
+    update_parser.add_argument('name', help='Name of the secret')
+    update_parser.set_defaults(func=update_secret)
+
+    # Export
+    export_parser = subparsers.add_parser('export', help='Export secrets to .env file')
+    export_parser.add_argument('--output', '-o', default='.env', help='Output file path (default: .env)')
+    export_parser.set_defaults(func=export_secrets)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):

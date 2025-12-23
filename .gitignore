@@ -5,3 +5,6 @@ dist/
 build/
 *.spec
 *.log
+
+# Personal notes and marketing materials
+personal/
