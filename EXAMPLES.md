@@ -21,11 +21,11 @@ Real-world examples of using EnvLockr with popular frameworks.
 
 ```bash
 # Store your secrets
-python envlockr.py add REACT_APP_API_URL
-python envlockr.py add REACT_APP_API_KEY
+envlockr add REACT_APP_API_URL
+envlockr add REACT_APP_API_KEY
 
 # Export to .env
-python envlockr.py export
+envlockr export
 
 # Start your app
 npm start
@@ -48,12 +48,12 @@ export default config;
 
 ```bash
 # Store secrets
-python envlockr.py add NEXT_PUBLIC_API_URL
-python envlockr.py add DATABASE_URL
-python envlockr.py add JWT_SECRET
+envlockr add NEXT_PUBLIC_API_URL
+envlockr add DATABASE_URL
+envlockr add JWT_SECRET
 
 # Export
-python envlockr.py export
+envlockr export
 
 # Run dev server
 npm run dev
@@ -82,11 +82,11 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 ```bash
 # Store secrets (must start with VITE_)
-python envlockr.py add VITE_API_URL
-python envlockr.py add VITE_API_KEY
+envlockr add VITE_API_URL
+envlockr add VITE_API_KEY
 
 # Export
-python envlockr.py export
+envlockr export
 
 # Run dev
 npm run dev
@@ -109,12 +109,12 @@ export const config = {
 
 ```bash
 # Store secrets
-python envlockr.py add PORT
-python envlockr.py add DATABASE_URL
-python envlockr.py add JWT_SECRET
+envlockr add PORT
+envlockr add DATABASE_URL
+envlockr add JWT_SECRET
 
 # Export
-python envlockr.py export
+envlockr export
 
 # Run app
 node server.js
@@ -141,7 +141,7 @@ app.listen(PORT, () => {
 const { execSync } = require('child_process');
 
 function getSecret(name) {
-  return execSync(`python envlockr.py get ${name}`)
+  return execSync(`envlockr get ${name}`)
     .toString()
     .trim();
 }
@@ -161,12 +161,12 @@ module.exports = {
 
 ```bash
 # Store secrets
-python envlockr.py add FLASK_SECRET_KEY
-python envlockr.py add DATABASE_URL
-python envlockr.py add API_KEY
+envlockr add FLASK_SECRET_KEY
+envlockr add DATABASE_URL
+envlockr add API_KEY
 
 # Export
-python envlockr.py export
+envlockr export
 ```
 
 **app.py:**
@@ -197,7 +197,7 @@ import subprocess
 
 def get_secret(name):
     result = subprocess.run(
-        ['python', 'envlockr.py', 'get', name],
+        ['envlockr', 'get', name],
         capture_output=True,
         text=True
     )
@@ -213,13 +213,13 @@ SECRET_KEY = get_secret('FLASK_SECRET_KEY')
 
 ```bash
 # Store secrets
-python envlockr.py add DJANGO_SECRET_KEY
-python envlockr.py add DATABASE_URL
-python envlockr.py add AWS_ACCESS_KEY_ID
-python envlockr.py add AWS_SECRET_ACCESS_KEY
+envlockr add DJANGO_SECRET_KEY
+envlockr add DATABASE_URL
+envlockr add AWS_ACCESS_KEY_ID
+envlockr add AWS_SECRET_ACCESS_KEY
 
 # Export
-python envlockr.py export
+envlockr export
 ```
 
 **settings.py:**
@@ -254,14 +254,13 @@ FROM python:3.9
 WORKDIR /app
 
 # Install EnvLockr
-RUN pip install cryptography pyperclip
+RUN pip install envlockr
 
-# Copy EnvLockr files
-COPY envlockr.py .
+# Copy vault files
 COPY .envlockr /root/.envlockr/
 
 # Export secrets at build time
-RUN python envlockr.py export --output .env
+RUN envlockr export --output .env
 
 # Your app setup
 COPY . .
@@ -281,7 +280,7 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - API_KEY=${API_KEY}
-    command: sh -c "python envlockr.py export && python app.py"
+    command: sh -c "envlockr export && python app.py"
 ```
 
 ---
@@ -310,16 +309,16 @@ jobs:
           python-version: '3.x'
       
       - name: Install EnvLockr
-        run: pip install cryptography pyperclip
+        run: pip install envlockr
       
       - name: Add secrets to EnvLockr
         run: |
-          echo "${{ secrets.API_KEY }}" | python envlockr.py add API_KEY
-          echo "${{ secrets.DATABASE_URL }}" | python envlockr.py add DATABASE_URL
+          echo "${{ secrets.API_KEY }}" | envlockr add API_KEY
+          echo "${{ secrets.DATABASE_URL }}" | envlockr add DATABASE_URL
       
       - name: Export and deploy
         run: |
-          python envlockr.py export
+          envlockr export
           # Your deployment commands here
 ```
 
@@ -332,18 +331,18 @@ jobs:
 ```bash
 # Encrypt vault with a master password
 # (Add this feature in future version)
-python envlockr.py encrypt-vault --password $MASTER_PASSWORD
+envlockr encrypt-vault --password $MASTER_PASSWORD
 
 # In CI/CD, decrypt and use
-python envlockr.py decrypt-vault --password $MASTER_PASSWORD
-python envlockr.py export
+envlockr decrypt-vault --password $MASTER_PASSWORD
+envlockr export
 ```
 
 ### Option 2: Use CI/CD secrets + EnvLockr for local dev
 
 **Local development:**
 ```bash
-python envlockr.py add API_KEY
+envlockr add API_KEY
 npm run dev
 ```
 
@@ -362,17 +361,17 @@ env:
 ```bash
 # Store vault in project directory
 export ENVLOCKR_HOME="./config/secrets"
-python envlockr.py add SECRET
+envlockr add SECRET
 ```
 
 ### 2. Team sharing (encrypted)
 
 ```bash
 # Export vault for team member
-python envlockr.py export-vault --encrypt --password "team-password"
+envlockr export-vault --encrypt --password "team-password"
 
 # Team member imports
-python envlockr.py import-vault --decrypt --password "team-password"
+envlockr import-vault --decrypt --password "team-password"
 ```
 
 *Note: These features are planned for future releases*

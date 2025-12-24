@@ -10,14 +10,15 @@ Thank you for your interest in contributing to EnvLockr! 🎉
    cd envlockr-cli
    ```
 
-2. **Install dependencies**
+2. **Install in development mode**
    ```bash
-   pip install -r requirements.txt
+   pip install -e .
    ```
 
 3. **Test your installation**
    ```bash
-   python envlockr.py --help
+   envlockr --version
+   envlockr --help
    ```
 
 ## Development
@@ -25,17 +26,14 @@ Thank you for your interest in contributing to EnvLockr! 🎉
 ### Running Tests
 
 ```bash
-# Test adding a secret
-python envlockr.py add TEST_KEY
+# Run unit tests
+python run_tests.py
 
-# Test retrieving a secret
-python envlockr.py get TEST_KEY
-
-# Test listing secrets
-python envlockr.py list
-
-# Clean up
-python envlockr.py delete TEST_KEY
+# Manual testing
+envlockr add TEST_KEY
+envlockr get TEST_KEY
+envlockr list
+envlockr delete TEST_KEY
 ```
 
 ### Code Style
