@@ -1,2 +1,10 @@
-cryptography
-pyperclip
+# Core dependencies
+cryptography>=3.4.0
+
+# Optional: Clipboard support
+pyperclip>=1.8.0
+
+# Development dependencies (optional)
+# pytest>=7.0.0
+# black>=22.0.0
+# flake8>=4.0.0

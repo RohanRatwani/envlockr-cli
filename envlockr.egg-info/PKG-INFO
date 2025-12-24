@@ -1,3 +1,43 @@
+Metadata-Version: 2.4
+Name: envlockr
+Version: 1.0.1
+Summary: Secure your environment variables — locally, encrypted, and stream-safe.
+Author-email: Rohan Ratwani <rohanratwani@example.com>
+Maintainer-email: Rohan Ratwani <rohanratwani@example.com>
+License-Expression: MIT
+Project-URL: Homepage, https://envlockr.dev
+Project-URL: Documentation, https://github.com/RohanRatwani/envlockr-cli#readme
+Project-URL: Repository, https://github.com/RohanRatwani/envlockr-cli
+Project-URL: Issues, https://github.com/RohanRatwani/envlockr-cli/issues
+Project-URL: Changelog, https://github.com/RohanRatwani/envlockr-cli/blob/main/CHANGELOG.md
+Keywords: environment-variables,secrets,encryption,security,cli,env,dotenv,secrets-management,local-first,developer-tools
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Security
+Classifier: Topic :: Security :: Cryptography
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Utilities
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: cryptography>=3.4.0
+Provides-Extra: clipboard
+Requires-Dist: pyperclip>=1.8.0; extra == "clipboard"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=22.0.0; extra == "dev"
+Requires-Dist: flake8>=4.0.0; extra == "dev"
+Dynamic: license-file
+
 <p align="center">
   <img src="banner.png" alt="EnvLockr - Secure Your Environment Variables Locally" />
 </p>

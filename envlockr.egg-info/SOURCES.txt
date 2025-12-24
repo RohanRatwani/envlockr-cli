@@ -1,0 +1,10 @@
+LICENSE
+README.md
+envlockr.py
+pyproject.toml
+envlockr.egg-info/PKG-INFO
+envlockr.egg-info/SOURCES.txt
+envlockr.egg-info/dependency_links.txt
+envlockr.egg-info/entry_points.txt
+envlockr.egg-info/requires.txt
+envlockr.egg-info/top_level.txt

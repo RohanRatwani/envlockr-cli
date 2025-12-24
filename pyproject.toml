@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "envlockr"
+version = "1.0.1"
+description = "Secure your environment variables — locally, encrypted, and stream-safe."
+readme = "README.md"
+license = "MIT"
+authors = [
+    {name = "Rohan Ratwani", email = "rohanratwani@example.com"}
+]
+maintainers = [
+    {name = "Rohan Ratwani", email = "rohanratwani@example.com"}
+]
+keywords = [
+    "environment-variables",
+    "secrets",
+    "encryption",
+    "security",
+    "cli",
+    "env",
+    "dotenv",
+    "secrets-management",
+    "local-first",
+    "developer-tools"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities"
+]
+requires-python = ">=3.7"
+dependencies = [
+    "cryptography>=3.4.0"
+]
+
+[project.optional-dependencies]
+clipboard = ["pyperclip>=1.8.0"]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0"
+]
+
+[project.urls]
+Homepage = "https://envlockr.dev"
+Documentation = "https://github.com/RohanRatwani/envlockr-cli#readme"
+Repository = "https://github.com/RohanRatwani/envlockr-cli"
+Issues = "https://github.com/RohanRatwani/envlockr-cli/issues"
+Changelog = "https://github.com/RohanRatwani/envlockr-cli/blob/main/CHANGELOG.md"
+
+[project.scripts]
+envlockr = "envlockr:main"
+
+[tool.setuptools]
+py-modules = ["envlockr"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["envlockr*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

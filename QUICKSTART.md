@@ -3,54 +3,73 @@
 ## Installation
 
 ```bash
-pip install cryptography pyperclip
+# From PyPI (recommended)
+pip install envlockr
+
+# With clipboard support
+pip install envlockr[clipboard]
 ```
 
 ## Commands
 
 ### Add a Secret
 ```bash
-python envlockr.py add API_KEY
+envlockr add API_KEY
 # Prompts for secret value (hidden input)
 ```
 
 ### Get a Secret
 ```bash
-python envlockr.py get API_KEY
+envlockr get API_KEY
 # Outputs the secret value
 ```
 
 ### Copy to Clipboard
 ```bash
-python envlockr.py copy API_KEY
+envlockr copy API_KEY
 # Secret copied! Paste anywhere
 ```
 
 ### List All Secrets
 ```bash
-python envlockr.py list
+envlockr list
 # Shows all secret names (not values)
 ```
 
 ### Update a Secret
 ```bash
-python envlockr.py update API_KEY
+envlockr update API_KEY
 # Prompts for new value
 ```
 
 ### Delete a Secret
 ```bash
-python envlockr.py delete API_KEY
+envlockr delete API_KEY
 # Removes the secret permanently
 ```
 
 ### Export to .env
 ```bash
-python envlockr.py export
+envlockr export
 # Creates .env file with all secrets
 
-python envlockr.py export --output config.env
+envlockr export --output config.env
 # Custom output file
+```
+
+### Import from .env
+```bash
+envlockr import .env
+# Import existing secrets from .env file
+
+envlockr import .env --force
+# Overwrite existing secrets
+```
+
+### Check Version
+```bash
+envlockr --version
+# Shows current version
 ```
 
 ## Common Workflows
@@ -59,20 +78,26 @@ python envlockr.py export --output config.env
 
 **Option 1: Export to .env**
 ```bash
-python envlockr.py export
+envlockr export
 npm run dev
 ```
 
 **Option 2: Inline (Unix/Mac)**
 ```bash
-export API_KEY=$(python envlockr.py get API_KEY)
+export API_KEY=$(envlockr get API_KEY)
 npm run dev
 ```
 
 **Option 3: Inline (Windows PowerShell)**
 ```powershell
-$env:API_KEY = python envlockr.py get API_KEY
+$env:API_KEY = envlockr get API_KEY
 npm run dev
+```
+
+**Option 4: Migrate existing .env**
+```bash
+envlockr import .env
+rm .env  # Delete unencrypted file
 ```
 
 ### Python Projects
@@ -83,12 +108,11 @@ import subprocess
 
 # Get secret from EnvLockr
 api_key = subprocess.check_output(
-    ['python', 'envlockr.py', 'get', 'API_KEY']
+    ['envlockr', 'get', 'API_KEY']
 ).decode().strip()
 
 # Or use after export
-python envlockr.py export
-# Then use python-dotenv
+# envlockr export
 from dotenv import load_dotenv
 load_dotenv()
 api_key = os.getenv('API_KEY')
@@ -100,7 +124,7 @@ api_key = os.getenv('API_KEY')
 const { execSync } = require('child_process');
 
 // Get secret from EnvLockr
-const apiKey = execSync('python envlockr.py get API_KEY')
+const apiKey = execSync('envlockr get API_KEY')
   .toString()
   .trim();
 
