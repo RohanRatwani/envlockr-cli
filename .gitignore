@@ -8,3 +8,10 @@ build/
 
 # Personal notes and marketing materials
 personal/
+
+# Local testing (not for repo)
+tests/
+run_tests.py
+.pytest_cache/
+.coverage
+htmlcov/
