@@ -57,6 +57,10 @@ pip install -e .
 | delete | `envlockr delete STRIPE_KEY` | Delete a secret |
 | export | `envlockr export --output .env` | Export all secrets to .env file |
 | import | `envlockr import .env` | Import secrets from .env file |
+| encrypt-vault | `envlockr encrypt-vault` | Password-protect your vault for backup |
+| decrypt-vault | `envlockr decrypt-vault` | Restore a password-protected vault |
+| export-vault | `envlockr export-vault` | Export vault for team sharing |
+| import-vault | `envlockr import-vault` | Import a shared vault file |
 | --version | `envlockr --version` | Show version number |
 ## ⚡ How to Use in Your Projects
 
@@ -155,11 +159,9 @@ jobs:
 ## 📥 What's Next?
 
 We're exploring new features for EnvLockr, including:
-- Advanced environment injection
-- Project-specific vaults
+- Advanced environment injection (`envlockr inject -- npm run dev`)
 - Desktop UI app
 - IDE integrations (VS Code, JetBrains)
-- Team collaboration features
 
 👉 [Join the Waitlist](https://envlockr.dev) and share your thoughts!
 

@@ -1,12 +1,14 @@
 import argparse
+import base64
 import getpass
+import hashlib
 import json
 import os
 import stat
 import sys
 
 # Version
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 
 # Try to import optional dependencies
 pyperclip = None  # type: ignore
@@ -23,8 +25,8 @@ except ImportError:
     print("   Install it with: pip install cryptography")
     sys.exit(1)
 
-# Constants
-VAULT_DIR = os.path.expanduser("~/.envlockr")
+# Constants — respect ENVLOCKR_HOME for project-specific vaults
+VAULT_DIR = os.environ.get("ENVLOCKR_HOME", os.path.expanduser("~/.envlockr"))
 VAULT_FILE = os.path.join(VAULT_DIR, "vault.json")
 KEY_FILE = os.path.join(VAULT_DIR, "key.key")
 
@@ -411,6 +413,130 @@ def import_secrets(args):
     except IOError as e:
         print_error(f"Error reading file: {e}")
 
+
+def _derive_key_from_password(password):
+    """Derive a Fernet key from a password using PBKDF2"""
+    salt = b'envlockr-vault-salt'  # fixed salt — vault is already encrypted
+    key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100_000)
+    return base64.urlsafe_b64encode(key)
+
+
+def encrypt_vault_cmd(args):
+    """Encrypt the vault file with a password for portability"""
+    if not os.path.exists(VAULT_FILE):
+        print_error("No vault found to encrypt.")
+        return
+
+    password = args.password
+    if not password:
+        password = getpass.getpass(prompt="Enter password to encrypt vault: ")
+        confirm = getpass.getpass(prompt="Confirm password: ")
+        if password != confirm:
+            print_error("Passwords do not match.")
+            return
+
+    if not password:
+        print_error("Password cannot be empty.")
+        return
+
+    try:
+        with open(VAULT_FILE, 'r') as f:
+            vault_data = f.read()
+        with open(KEY_FILE, 'rb') as f:
+            key_data = f.read()
+    except (IOError, FileNotFoundError) as e:
+        print_error(f"Error reading vault files: {e}")
+        return
+
+    # Bundle vault + key into one payload and encrypt with password
+    bundle = json.dumps({
+        "vault": vault_data,
+        "key": base64.b64encode(key_data).decode()
+    })
+
+    fernet = Fernet(_derive_key_from_password(password))
+    encrypted = fernet.encrypt(bundle.encode())
+
+    output_file = getattr(args, 'output', None) or "vault.envlockr"
+    try:
+        with open(output_file, 'wb') as f:
+            f.write(encrypted)
+        print_success(f"Vault encrypted to '{output_file}'")
+        print_info("Share this file safely — it requires the password to decrypt.")
+    except IOError as e:
+        print_error(f"Error writing encrypted vault: {e}")
+
+
+def decrypt_vault_cmd(args):
+    """Decrypt a password-protected vault file and restore it"""
+    input_file = getattr(args, 'file', None) or "vault.envlockr"
+
+    if not os.path.exists(input_file):
+        print_error(f"File '{input_file}' not found.")
+        return
+
+    password = args.password
+    if not password:
+        password = getpass.getpass(prompt="Enter password to decrypt vault: ")
+
+    if not password:
+        print_error("Password cannot be empty.")
+        return
+
+    try:
+        with open(input_file, 'rb') as f:
+            encrypted = f.read()
+    except IOError as e:
+        print_error(f"Error reading file: {e}")
+        return
+
+    try:
+        fernet = Fernet(_derive_key_from_password(password))
+        decrypted = fernet.decrypt(encrypted).decode()
+    except InvalidToken:
+        print_error("Wrong password or corrupted file.")
+        return
+
+    bundle = json.loads(decrypted)
+
+    # Check for existing vault
+    if os.path.exists(VAULT_FILE) and not getattr(args, 'force', False):
+        print_warning("A vault already exists at this location.")
+        response = input("Overwrite? [y/N]: ").strip().lower()
+        if response != 'y':
+            print_info("Operation cancelled.")
+            return
+
+    ensure_vault_dir()
+
+    try:
+        with open(VAULT_FILE, 'w') as f:
+            f.write(bundle["vault"])
+        key_bytes = base64.b64decode(bundle["key"])
+        flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+        if sys.platform != 'win32':
+            fd = os.open(KEY_FILE, flags, 0o600)
+            with os.fdopen(fd, 'wb') as f:
+                f.write(key_bytes)
+        else:
+            with open(KEY_FILE, 'wb') as f:
+                f.write(key_bytes)
+        print_success("Vault restored successfully.")
+    except IOError as e:
+        print_error(f"Error restoring vault: {e}")
+
+
+def export_vault_cmd(args):
+    """Export vault as a password-encrypted portable file"""
+    # Alias for encrypt-vault with --output
+    encrypt_vault_cmd(args)
+
+
+def import_vault_cmd(args):
+    """Import a password-encrypted vault file"""
+    # Alias for decrypt-vault with --file
+    decrypt_vault_cmd(args)
+
 def main():
     """Main entry point for EnvLockr CLI"""
     parser = argparse.ArgumentParser(
@@ -424,6 +550,13 @@ Examples:
   envlockr list                 List all secrets
   envlockr export               Export to .env file
   envlockr import .env          Import from .env file
+  envlockr encrypt-vault        Password-protect your vault
+  envlockr decrypt-vault        Restore a password-protected vault
+  envlockr export-vault         Export vault for team sharing
+  envlockr import-vault         Import a shared vault file
+
+Environment:
+  ENVLOCKR_HOME                 Custom vault directory (default: ~/.envlockr)
 
 Documentation: https://github.com/RohanRatwani/envlockr-cli
         """
@@ -479,6 +612,32 @@ Documentation: https://github.com/RohanRatwani/envlockr-cli
     import_parser.add_argument('file', help='Path to .env file to import')
     import_parser.add_argument('--force', '-f', action='store_true', help='Overwrite existing secrets')
     import_parser.set_defaults(func=import_secrets)
+
+    # Encrypt Vault
+    enc_parser = subparsers.add_parser('encrypt-vault', help='Password-protect your vault for backup/sharing')
+    enc_parser.add_argument('--password', '-p', default=None, help='Encryption password (prompted if omitted)')
+    enc_parser.add_argument('--output', '-o', default='vault.envlockr', help='Output file (default: vault.envlockr)')
+    enc_parser.set_defaults(func=encrypt_vault_cmd)
+
+    # Decrypt Vault
+    dec_parser = subparsers.add_parser('decrypt-vault', help='Restore a password-protected vault')
+    dec_parser.add_argument('--file', default='vault.envlockr', help='Encrypted vault file (default: vault.envlockr)')
+    dec_parser.add_argument('--password', '-p', default=None, help='Decryption password (prompted if omitted)')
+    dec_parser.add_argument('--force', '-f', action='store_true', help='Overwrite existing vault without confirmation')
+    dec_parser.set_defaults(func=decrypt_vault_cmd)
+
+    # Export Vault (alias for encrypt-vault)
+    expv_parser = subparsers.add_parser('export-vault', help='Export vault as encrypted file for team sharing')
+    expv_parser.add_argument('--password', '-p', default=None, help='Encryption password (prompted if omitted)')
+    expv_parser.add_argument('--output', '-o', default='vault.envlockr', help='Output file (default: vault.envlockr)')
+    expv_parser.set_defaults(func=export_vault_cmd)
+
+    # Import Vault (alias for decrypt-vault)
+    impv_parser = subparsers.add_parser('import-vault', help='Import an encrypted vault file from a teammate')
+    impv_parser.add_argument('--file', default='vault.envlockr', help='Encrypted vault file (default: vault.envlockr)')
+    impv_parser.add_argument('--password', '-p', default=None, help='Decryption password (prompted if omitted)')
+    impv_parser.add_argument('--force', '-f', action='store_true', help='Overwrite existing vault without confirmation')
+    impv_parser.set_defaults(func=import_vault_cmd)
 
     args = parser.parse_args()
     

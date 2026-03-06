@@ -72,6 +72,40 @@ envlockr --version
 # Shows current version
 ```
 
+### Encrypt Vault (backup/share)
+```bash
+envlockr encrypt-vault
+# Creates password-protected vault.envlockr file
+
+envlockr encrypt-vault --output backup.envlockr
+# Custom output file
+```
+
+### Decrypt Vault (restore)
+```bash
+envlockr decrypt-vault
+# Restores vault from vault.envlockr
+
+envlockr decrypt-vault --file backup.envlockr
+# Custom input file
+```
+
+### Team Sharing
+```bash
+# Teammate A exports
+envlockr export-vault --password "shared-password"
+
+# Teammate B imports
+envlockr import-vault --password "shared-password"
+```
+
+### Project-Specific Vault
+```bash
+export ENVLOCKR_HOME="./config/secrets"
+envlockr add API_KEY
+# Stored in ./config/secrets/ instead of ~/.envlockr/
+```
+
 ## Common Workflows
 
 ### React / Next.js / Vite

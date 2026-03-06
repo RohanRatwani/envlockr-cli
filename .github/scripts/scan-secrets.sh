@@ -141,7 +141,7 @@ should_ignore() {
 # Get list of files to scan
 if [ -d ".git" ]; then
   # In a git repo, scan changed files
-  if [ -n "$GITHUB_BASE_REF" ]; then
+  if [ -n "${GITHUB_BASE_REF:-}" ]; then
     # Pull request
     FILES=$(git diff --name-only "origin/$GITHUB_BASE_REF"...HEAD 2>/dev/null || git diff --name-only HEAD~1 HEAD)
   else

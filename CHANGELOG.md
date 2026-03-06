@@ -2,6 +2,50 @@
 
 All notable changes to EnvLockr will be documented in this file.
 
+## [1.1.0] - 2026-03-06
+
+### ✨ New Features
+
+#### Project-Specific Vaults (`ENVLOCKR_HOME`)
+- Set `ENVLOCKR_HOME` environment variable to use a custom vault directory
+- Example: `export ENVLOCKR_HOME="./config/secrets"` for per-project secrets
+- Falls back to `~/.envlockr` when unset
+
+#### Vault Encryption & Sharing
+- **`envlockr encrypt-vault`** — Password-protect your vault into a portable `.envlockr` file
+- **`envlockr decrypt-vault`** — Restore a vault from a password-protected file
+- **`envlockr export-vault`** — Export vault for team sharing (alias for encrypt-vault)
+- **`envlockr import-vault`** — Import a shared vault file (alias for decrypt-vault)
+- Uses PBKDF2 key derivation for password-based encryption
+- Bundles both vault data and encryption key into one portable file
+
+#### Documentation
+- Removed "planned for future" notes from EXAMPLES.md — features are now live
+- Updated README commands table with new commands
+- Updated CLI help text with new commands and ENVLOCKR_HOME docs
+
+---
+
+## [1.0.1] - 2026-03-06
+
+### 🔧 Improvements
+
+#### GitHub Action
+- Refactored workflow to call `scan-secrets.sh` directly (DRY, no more duplicated patterns)
+- Added **`SCAN_MODE`** environment variable (`lenient` / `normal` / `strict`) to control scan sensitivity
+- Added **`IGNORE_PATTERNS`** environment variable for comma-separated ignore list
+- Patterns split into tiered groups: provider-specific (all modes), generic auth (normal), broad heuristics (strict)
+- Bumped scanner to v1.1 with improved pattern coverage
+- Fixed potential `set -e` failure when `GITHUB_BASE_REF` is unset
+- Removed unnecessary Python setup step from workflow (scanner is pure bash)
+- PR comment now wraps findings in a code block for readability
+
+#### Documentation
+- Expanded `GITHUB_ACTION.md` with full customization docs (scan mode table, ignore patterns)
+- Updated detection list to tabular format
+
+---
+
 ## [1.0.0] - 2025-12-23
 
 ### 🎉 Initial Release
