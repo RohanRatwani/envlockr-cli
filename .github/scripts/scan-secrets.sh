@@ -6,7 +6,7 @@
 
 set -e
 
-echo "🔐 EnvLockr Secret Scanner v1.0"
+echo "🔐 EnvLockr Secret Scanner v1.1"
 echo "================================"
 echo ""
 
@@ -16,8 +16,17 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Secret patterns to detect
-declare -a PATTERNS=(
+# Scan mode: strict | normal (default) | lenient
+# strict  — adds generic heuristics (more false-positives)
+# normal  — well-known provider tokens only (default)
+# lenient — only high-confidence, low-noise patterns
+SCAN_MODE="${SCAN_MODE:-normal}"
+
+echo "🔧 Scan mode: $SCAN_MODE"
+echo ""
+
+# High-confidence patterns used in ALL modes
+declare -a PATTERNS_STRICT=(
   "AKIA[0-9A-Z]{16}"                          # AWS Access Key
   "sk_live_[0-9a-zA-Z]{24,}"                  # Stripe Live Key
   "sk_test_[0-9a-zA-Z]{24,}"                  # Stripe Test Key
@@ -44,18 +53,46 @@ declare -a PATTERNS=(
   "mysql://[^:]+:[^@]+@"                      # MySQL Connection String
   "redis://[^:]+:[^@]+@"                      # Redis Connection String
   "amqp://[^:]+:[^@]+@"                       # RabbitMQ Connection String
-  "Bearer [a-zA-Z0-9\\-._~+/]{20,}"           # Bearer Token
   "-----BEGIN (RSA|DSA|EC|OPENSSH) PRIVATE KEY-----" # Private Keys
+)
+
+# Additional patterns for normal mode (default)
+declare -a PATTERNS_NORMAL=(
+  "Bearer [a-zA-Z0-9\\-._~+/]{20,}"           # Bearer Token
+  "access[_-]?token[\"']?\\s*[:=]\\s*[\"'][a-zA-Z0-9\\-._~+/]{20,}" # Access token
+  "client[_-]?secret[\"']?\\s*[:=]\\s*[\"'][a-zA-Z0-9\\-._~+/]{20,}" # Client secret
+)
+
+# Additional patterns for strict mode only (higher false-positive rate)
+declare -a PATTERNS_STRICT_ONLY=(
   "token[\"']?\\s*[:=]\\s*[\"'][a-zA-Z0-9\\-._~+/]{20,}" # Generic token
   "api[_-]?key[\"']?\\s*[:=]\\s*[\"'][a-zA-Z0-9\\-._~+/]{20,}" # Generic API key
   "password[\"']?\\s*[:=]\\s*[\"'][^\"']{8,}" # Password assignment
   "secret[\"']?\\s*[:=]\\s*[\"'][a-zA-Z0-9\\-._~+/]{20,}" # Secret assignment
-  "access[_-]?token[\"']?\\s*[:=]\\s*[\"'][a-zA-Z0-9\\-._~+/]{20,}" # Access token
-  "client[_-]?secret[\"']?\\s*[\"'][a-zA-Z0-9\\-._~+/]{20,}" # Client secret
 )
 
-# Files and patterns to ignore
-IGNORE_PATTERNS=(
+# Build active pattern list based on SCAN_MODE
+declare -a PATTERNS=()
+case "$SCAN_MODE" in
+  lenient)
+    PATTERNS=("${PATTERNS_STRICT[@]}")
+    ;;
+  normal)
+    PATTERNS=("${PATTERNS_STRICT[@]}" "${PATTERNS_NORMAL[@]}")
+    ;;
+  strict)
+    PATTERNS=("${PATTERNS_STRICT[@]}" "${PATTERNS_NORMAL[@]}" "${PATTERNS_STRICT_ONLY[@]}")
+    ;;
+  *)
+    echo "⚠️  Unknown SCAN_MODE '$SCAN_MODE', falling back to 'normal'"
+    PATTERNS=("${PATTERNS_STRICT[@]}" "${PATTERNS_NORMAL[@]}")
+    ;;
+esac
+
+# Default files/patterns to ignore (overridable via IGNORE_PATTERNS env var)
+# Set IGNORE_PATTERNS as a comma-separated list to override, e.g.:
+#   export IGNORE_PATTERNS="*.test.js,*.spec.ts,examples/*"
+declare -a DEFAULT_IGNORE=(
   ".git/"
   "node_modules/"
   "vendor/"
@@ -76,6 +113,16 @@ IGNORE_PATTERNS=(
   ".ttf"
 )
 
+declare -a IGNORE_ARRAY=()
+if [ -n "${IGNORE_PATTERNS:-}" ]; then
+  # Parse comma-separated env var into array
+  IFS=',' read -ra IGNORE_ARRAY <<< "$IGNORE_PATTERNS"
+  echo "🙈 Custom ignore patterns: $IGNORE_PATTERNS"
+  echo ""
+else
+  IGNORE_ARRAY=("${DEFAULT_IGNORE[@]}")
+fi
+
 FOUND_SECRETS=false
 FINDINGS_FILE="secret_scan_results.txt"
 > "$FINDINGS_FILE"
@@ -83,7 +130,7 @@ FINDINGS_FILE="secret_scan_results.txt"
 # Function to check if file should be ignored
 should_ignore() {
   local file=$1
-  for pattern in "${IGNORE_PATTERNS[@]}"; do
+  for pattern in "${IGNORE_ARRAY[@]}"; do
     if [[ "$file" == *"$pattern"* ]]; then
       return 0
     fi
