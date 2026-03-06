@@ -5,6 +5,7 @@ dist/
 build/
 *.spec
 *.log
+*.envlockr
 envlockr.egg-info/
 
 # Personal notes and marketing materials

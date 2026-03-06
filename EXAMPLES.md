@@ -329,8 +329,7 @@ jobs:
 ### Option 1: Store encrypted vault in repo
 
 ```bash
-# Encrypt vault with a master password
-# (Add this feature in future version)
+# Encrypt vault with a password
 envlockr encrypt-vault --password $MASTER_PASSWORD
 
 # In CI/CD, decrypt and use
@@ -368,13 +367,11 @@ envlockr add SECRET
 
 ```bash
 # Export vault for team member
-envlockr export-vault --encrypt --password "team-password"
+envlockr export-vault --password "team-password"
 
 # Team member imports
-envlockr import-vault --decrypt --password "team-password"
+envlockr import-vault --password "team-password"
 ```
-
-*Note: These features are planned for future releases*
 
 ### 3. Backup your secrets
 
