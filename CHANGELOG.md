@@ -2,6 +2,26 @@
 
 All notable changes to EnvLockr will be documented in this file.
 
+## [1.0.1] - 2026-03-06
+
+### 🔧 Improvements
+
+#### GitHub Action
+- Refactored workflow to call `scan-secrets.sh` directly (DRY, no more duplicated patterns)
+- Added **`SCAN_MODE`** environment variable (`lenient` / `normal` / `strict`) to control scan sensitivity
+- Added **`IGNORE_PATTERNS`** environment variable for comma-separated ignore list
+- Patterns split into tiered groups: provider-specific (all modes), generic auth (normal), broad heuristics (strict)
+- Bumped scanner to v1.1 with improved pattern coverage
+- Fixed potential `set -e` failure when `GITHUB_BASE_REF` is unset
+- Removed unnecessary Python setup step from workflow (scanner is pure bash)
+- PR comment now wraps findings in a code block for readability
+
+#### Documentation
+- Expanded `GITHUB_ACTION.md` with full customization docs (scan mode table, ignore patterns)
+- Updated detection list to tabular format
+
+---
+
 ## [1.0.0] - 2025-12-23
 
 ### 🎉 Initial Release

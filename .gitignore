@@ -5,9 +5,11 @@ dist/
 build/
 *.spec
 *.log
+envlockr.egg-info/
 
 # Personal notes and marketing materials
 personal/
+MARKETING_PLAN.md
 
 # Local testing (not for repo)
 tests/
