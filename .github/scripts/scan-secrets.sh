@@ -111,6 +111,7 @@ declare -a DEFAULT_IGNORE=(
   ".ico"
   ".woff"
   ".ttf"
+  "scan-secrets.sh"
 )
 
 declare -a IGNORE_ARRAY=()
