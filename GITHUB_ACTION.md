@@ -32,15 +32,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
       - name: Run EnvLockr Secret Scanner
         id: scan
         run: |
-          # Download EnvLockr scanner script
           curl -sSL https://raw.githubusercontent.com/RohanRatwani/envlockr-cli/main/.github/scripts/scan-secrets.sh -o scan-secrets.sh
           chmod +x scan-secrets.sh
           ./scan-secrets.sh
@@ -56,32 +50,59 @@ The action will now:
 
 ## What it detects
 
-- AWS Access Keys
-- Stripe API Keys
-- GitHub Tokens
-- Google API Keys
-- OpenAI API Keys
-- Slack Tokens
-- Database Connection Strings
-- Generic API keys and passwords
-- And more!
+| Provider | Pattern |
+|---|---|
+| AWS | Access Keys (`AKIA...`) |
+| Stripe | Live & test API keys |
+| GitHub | PATs, OAuth tokens, fine-grained PATs |
+| Google | API keys, OAuth tokens |
+| OpenAI | API keys (`sk-...`, `sk-proj-...`) |
+| Slack | Bot, user, app, and XOXE tokens |
+| DigitalOcean | Personal access tokens |
+| Square | Access tokens & OAuth secrets |
+| Databases | MongoDB, PostgreSQL, MySQL, Redis, RabbitMQ connection strings |
+| TLS/SSL | Private keys (RSA, DSA, EC, OpenSSH) |
+| Generic | Bearer tokens, access tokens, client secrets *(normal mode)* |
+| Generic | API keys, passwords, secrets *(strict mode only)* |
 
 ## Customization
 
-### Ignore specific files
-
-Add to your workflow:
-
-```yaml
-env:
-  IGNORE_PATTERNS: "*.test.js,*.spec.ts,examples/*"
-```
-
 ### Adjust sensitivity
 
+Set the `SCAN_MODE` environment variable (or a repository variable `ENVLOCKR_SCAN_MODE`):
+
+| Mode | Description |
+|---|---|
+| `lenient` | High-confidence, provider-specific patterns only — fewest false-positives |
+| `normal` | Default — includes generic bearer/access-token patterns |
+| `strict` | All patterns including generic password/secret/api-key heuristics |
+
 ```yaml
-env:
-  SCAN_MODE: "strict"  # strict, normal, or lenient
+- name: Run EnvLockr Secret Scanner
+  env:
+    SCAN_MODE: "strict"   # strict | normal (default) | lenient
+  run: |
+    chmod +x .github/scripts/scan-secrets.sh
+    ./.github/scripts/scan-secrets.sh
+```
+
+Or set a repository variable in **Settings → Variables → Actions**:
+
+```
+ENVLOCKR_SCAN_MODE = strict
+```
+
+### Ignore specific files
+
+Pass a comma-separated glob list via the `IGNORE_PATTERNS` environment variable (or repository variable `ENVLOCKR_IGNORE_PATTERNS`):
+
+```yaml
+- name: Run EnvLockr Secret Scanner
+  env:
+    IGNORE_PATTERNS: "*.test.js,*.spec.ts,examples/*"
+  run: |
+    chmod +x .github/scripts/scan-secrets.sh
+    ./.github/scripts/scan-secrets.sh
 ```
 
 ## Need help?
@@ -89,3 +110,4 @@ env:
 - 📖 [Full Documentation](https://github.com/RohanRatwani/envlockr-cli)
 - 🐛 [Report Issues](https://github.com/RohanRatwani/envlockr-cli/issues)
 - 💬 [Join Discussion](https://github.com/RohanRatwani/envlockr-cli/discussions)
+
