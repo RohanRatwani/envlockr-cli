@@ -161,7 +161,7 @@ class TestCLI:
     def test_list_empty(self, isolated_vault):
         rc, out, _ = _run_cli("list")
         assert rc == 0
-        assert "No secrets" in out or "0" in out
+        assert "No secrets" in out
 
     def test_add_and_get(self, isolated_vault, monkeypatch):
         import envlockr
