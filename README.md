@@ -5,6 +5,7 @@
 # 🔐 EnvLockr CLI
 
 [![PyPI version](https://badge.fury.io/py/envlockr.svg)](https://pypi.org/project/envlockr/)
+[![CI](https://github.com/RohanRatwani/envlockr-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/RohanRatwani/envlockr-cli/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub stars](https://img.shields.io/github/stars/RohanRatwani/envlockr-cli?style=social)](https://github.com/RohanRatwani/envlockr-cli/stargazers)

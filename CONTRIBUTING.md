@@ -26,8 +26,8 @@ Thank you for your interest in contributing to EnvLockr! 🎉
 ### Running Tests
 
 ```bash
-# Run unit tests
-python run_tests.py
+# Run tests
+python test_install.py
 
 # Manual testing
 envlockr add TEST_KEY
