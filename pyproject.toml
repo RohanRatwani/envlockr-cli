@@ -7,7 +7,7 @@ name = "envlockr"
 version = "2.0.0"
 description = "Secure your environment variables — locally, encrypted, and stream-safe."
 readme = "README.md"
-license = "MIT"
+license = {text = "MIT"}
 authors = [
     {name = "Rohan Ratwani", email = "ratwani.rohan@gmail.com"}
 ]
