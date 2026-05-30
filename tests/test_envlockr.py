@@ -111,15 +111,14 @@ class TestSecretOperations(unittest.TestCase):
         envlockr.KEY_FILE = self.original_key_file
         envlockr.KEYRING_AVAILABLE = self.original_keyring
     
-    @patch('getpass.getpass')
-    def test_add_secret(self, mock_getpass):
+    def test_add_secret(self):
         """Test adding a new secret"""
-        mock_getpass.return_value = "my_secret_value"
-        
         args = MagicMock()
         args.name = "TEST_SECRET"
         args.force = False
-        
+        args.value = "my_secret_value"
+        args.stdin = False
+
         with patch('sys.stdout', new=StringIO()):
             envlockr.add_secret(args)
         
@@ -132,15 +131,15 @@ class TestSecretOperations(unittest.TestCase):
         decrypted = fernet.decrypt(vault["TEST_SECRET"].encode()).decode()
         self.assertEqual(decrypted, "my_secret_value")
     
-    @patch('getpass.getpass')
-    def test_get_secret(self, mock_getpass):
+    def test_get_secret(self):
         """Test retrieving a secret"""
         # First add a secret
-        mock_getpass.return_value = "my_secret_value"
         args = MagicMock()
         args.name = "TEST_SECRET"
         args.force = False
-        
+        args.value = "my_secret_value"
+        args.stdin = False
+
         with patch('sys.stdout', new=StringIO()):
             envlockr.add_secret(args)
         
@@ -162,16 +161,15 @@ class TestSecretOperations(unittest.TestCase):
         
         self.assertIn("not found", output.lower())
     
-    @patch('getpass.getpass')
-    def test_list_secrets(self, mock_getpass):
+    def test_list_secrets(self):
         """Test listing secrets"""
         # Add some secrets
-        mock_getpass.return_value = "value"
-        
         for name in ["SECRET1", "SECRET2", "SECRET3"]:
             args = MagicMock()
             args.name = name
             args.force = True
+            args.value = "value"
+            args.stdin = False
             with patch('sys.stdout', new=StringIO()):
                 envlockr.add_secret(args)
         
@@ -195,16 +193,16 @@ class TestSecretOperations(unittest.TestCase):
         
         self.assertIn("No secrets", output)
     
-    @patch('getpass.getpass')
     @patch('builtins.input')
-    def test_delete_secret(self, mock_input, mock_getpass):
+    def test_delete_secret(self, mock_input):
         """Test deleting a secret"""
         # First add a secret
-        mock_getpass.return_value = "my_secret_value"
         args = MagicMock()
         args.name = "TEST_SECRET"
         args.force = True
-        
+        args.value = "my_secret_value"
+        args.stdin = False
+
         with patch('sys.stdout', new=StringIO()):
             envlockr.add_secret(args)
         
@@ -221,20 +219,20 @@ class TestSecretOperations(unittest.TestCase):
         vault = envlockr.load_vault()
         self.assertNotIn("TEST_SECRET", vault)
     
-    @patch('getpass.getpass')
-    def test_update_secret(self, mock_getpass):
+    def test_update_secret(self):
         """Test updating a secret"""
         # First add a secret
-        mock_getpass.return_value = "original_value"
         args = MagicMock()
         args.name = "TEST_SECRET"
         args.force = True
-        
+        args.value = "original_value"
+        args.stdin = False
+
         with patch('sys.stdout', new=StringIO()):
             envlockr.add_secret(args)
-        
+
         # Update it
-        mock_getpass.return_value = "new_value"
+        args.value = "new_value"
         with patch('sys.stdout', new=StringIO()):
             envlockr.update_secret(args)
         
@@ -270,18 +268,18 @@ class TestExportImport(unittest.TestCase):
         envlockr.KEY_FILE = self.original_key_file
         envlockr.KEYRING_AVAILABLE = self.original_keyring
     
-    @patch('getpass.getpass')
     @patch('builtins.input')
-    def test_export_secrets(self, mock_input, mock_getpass):
+    def test_export_secrets(self, mock_input):
         """Test exporting secrets to .env file"""
         # Add some secrets
         secrets = {"API_KEY": "secret123", "DB_URL": "postgres://localhost"}
-        
+
         for name, value in secrets.items():
-            mock_getpass.return_value = value
             args = MagicMock()
             args.name = name
             args.force = True
+            args.value = value
+            args.stdin = False
             with patch('sys.stdout', new=StringIO()):
                 envlockr.add_secret(args)
         
@@ -396,6 +394,52 @@ class TestDecryptSecret(unittest.TestCase):
             result = envlockr.decrypt_secret(fernet, "invalid_encrypted_data")
         
         self.assertIsNone(result)
+
+
+class TestNonInteractiveInput(unittest.TestCase):
+    """Test --value / --stdin secret input (no getpass hang on piped input)."""
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.orig = (envlockr.VAULT_DIR, envlockr.VAULT_FILE, envlockr.KEY_FILE)
+        self.orig_keyring = envlockr.KEYRING_AVAILABLE
+        envlockr.VAULT_DIR = self.temp_dir
+        envlockr.VAULT_FILE = os.path.join(self.temp_dir, "vault.json")
+        envlockr.KEY_FILE = os.path.join(self.temp_dir, "key.key")
+        envlockr.KEYRING_AVAILABLE = False
+
+    def tearDown(self):
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+        envlockr.VAULT_DIR, envlockr.VAULT_FILE, envlockr.KEY_FILE = self.orig
+        envlockr.KEYRING_AVAILABLE = self.orig_keyring
+
+    def test_add_with_value_flag(self):
+        args = MagicMock(name="A", value="flagval", stdin=False, force=True)
+        args.name = "A"
+        with patch('sys.stdout', new=StringIO()):
+            envlockr.add_secret(args)
+        fernet = envlockr.load_or_create_key()
+        vault = envlockr.load_vault()
+        self.assertEqual(envlockr.decrypt_secret(fernet, vault["A"]), "flagval")
+
+    def test_resolve_reads_piped_stdin_without_flag(self):
+        """A non-TTY stdin must be read instead of blocking on getpass."""
+        args = MagicMock(value=None, stdin=False)
+        with patch('sys.stdin', new=StringIO("piped-secret\n")), \
+             patch.object(envlockr.sys.stdin, 'isatty', return_value=False, create=True):
+            # StringIO.isatty() returns False already; this is belt-and-suspenders.
+            val = envlockr._resolve_secret_value(args, "prompt: ")
+        self.assertEqual(val, "piped-secret")
+
+    def test_resolve_uses_getpass_on_tty(self):
+        args = MagicMock(value=None, stdin=False)
+        fake_stdin = MagicMock()
+        fake_stdin.isatty.return_value = True
+        with patch('sys.stdin', fake_stdin), \
+             patch('getpass.getpass', return_value="typed") as gp:
+            val = envlockr._resolve_secret_value(args, "prompt: ")
+        gp.assert_called_once()
+        self.assertEqual(val, "typed")
 
 
 class TestColors(unittest.TestCase):

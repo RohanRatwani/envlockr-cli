@@ -6,12 +6,16 @@
 
 [![PyPI version](https://badge.fury.io/py/envlockr.svg)](https://pypi.org/project/envlockr/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub stars](https://img.shields.io/github/stars/RohanRatwani/envlockr-cli?style=social)](https://github.com/RohanRatwani/envlockr-cli/stargazers)
 
 > Secure your environment variables — locally, encrypted, and stream-safe.
 
 EnvLockr CLI is a tool for developers, streamers, and indie hackers who want full control of their secrets without relying on cloud services.
+
+<!-- Generate with `vhs demo.tape` (see DEMO.md), then uncomment:
+<p align="center"><img src="demo.gif" alt="EnvLockr demo: add, run, verify" /></p>
+-->
 
 ## ✨ Features
 
@@ -72,6 +76,14 @@ pip install -e .
 | import-vault | `envlockr import-vault` | Import a shared vault file |
 | --env | `envlockr --env prod list` | Use an isolated named profile |
 | --version | `envlockr --version` | Show version number |
+
+> By default `add` prompts securely (hidden input). For scripts and CI, pass the
+> value non-interactively:
+> ```bash
+> envlockr add API_KEY --value "$API_KEY" --force      # from a variable
+> printf '%s' "$API_KEY" | envlockr add API_KEY --stdin # from stdin (no shell history)
+> ```
+
 ## ⚡ How to Use in Your Projects
 
 ### 🖥 Node.js / React / Vite / Next.js
