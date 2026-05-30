@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "envlockr"
-version = "1.1.0"
+version = "2.0.0"
 description = "Secure your environment variables — locally, encrypted, and stream-safe."
 readme = "README.md"
 license = "MIT"
 authors = [
-    {name = "Rohan Ratwani", email = "rohanratwani@example.com"}
+    {name = "Rohan Ratwani", email = "ratwani.rohan@gmail.com"}
 ]
 maintainers = [
-    {name = "Rohan Ratwani", email = "rohanratwani@example.com"}
+    {name = "Rohan Ratwani", email = "ratwani.rohan@gmail.com"}
 ]
 keywords = [
     "environment-variables",
@@ -50,10 +50,12 @@ dependencies = [
 
 [project.optional-dependencies]
 clipboard = ["pyperclip>=1.8.0"]
+keychain = ["keyring>=23.0.0"]
 dev = [
     "pytest>=7.0.0",
     "black>=22.0.0",
-    "flake8>=4.0.0"
+    "flake8>=4.0.0",
+    "keyring>=23.0.0"
 ]
 
 [project.urls]

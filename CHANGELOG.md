@@ -2,6 +2,45 @@
 
 All notable changes to EnvLockr will be documented in this file.
 
+## [2.0.0] - 2026-05-30
+
+### 🔐 Security
+
+- **OS keychain master key** — when `envlockr[keychain]` is installed, the master
+  key is stored in the OS keychain (Windows Credential Manager / macOS Keychain /
+  libsecret) instead of a plaintext file beside the vault. Falls back to a `0600`
+  key file with an explicit warning when no keychain is available.
+- **`encrypt-vault` now uses a random per-file salt** (16 bytes) instead of a
+  hard-coded shared salt, and bumps PBKDF2 from 100k to **600k** iterations.
+  Old (v1) vault files remain decryptable via a legacy fallback path.
+- Fixed a Windows `UnicodeEncodeError` crash when printing status glyphs on
+  cp1252 consoles (stdout/stderr are now reconfigured to UTF-8).
+
+### ✨ New Features
+
+- **`envlockr run -- <cmd>`** — run any command with secrets injected into its
+  environment. No `.env` file is written to disk. Supports `--only A,B`.
+- **`envlockr verify [NAME]`** — liveness-check stored keys against their provider
+  (Stripe, OpenAI, GitHub, Slack) to catch revoked or rotated keys.
+- **`envlockr secure-key`** — migrate an existing on-disk key into the OS keychain.
+- **Profiles** — `--env <name>` / `ENVLOCKR_ENV` for isolated per-environment
+  vaults under `<base>/envs/<name>/`. The `default` profile is unchanged.
+
+### 🛠 Tooling & Project
+
+- Secret-scan GitHub Action now uses **gitleaks** when available, falling back to
+  the built-in regex scanner otherwise.
+- Added a cross-platform (Ubuntu/macOS/Windows × Python 3.8–3.12) test CI workflow.
+- Test suite is now part of the repository (previously git-ignored); added tests
+  for `run`, `verify`, profiles, and the new salted vault format.
+- Fixed the placeholder maintainer email in package metadata.
+
+### ⚠️ Breaking
+
+- Major version bump. Behaviour is backward-compatible for existing default-profile
+  vaults and v1 encrypted-vault files, but the master-key location changes for new
+  installs that have the `keychain` extra.
+
 ## [1.1.0] - 2026-03-06
 
 ### ✨ New Features

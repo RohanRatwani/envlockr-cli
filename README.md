@@ -15,13 +15,15 @@ EnvLockr CLI is a tool for developers, streamers, and indie hackers who want ful
 
 ## ✨ Features
 
-- **Local-first**: All secrets stored securely on your machine
-- **AES Encryption**: Protects your secrets even if your disk is compromised
-- **Offline Mode**: No internet needed to operate
-- **Stream-Safe**: No .env file leaks on screen while coding or streaming
-- **Simple CLI**: Add, copy, list, and retrieve secrets instantly
+- **Local-first**: All secrets stored encrypted on your machine — no cloud, no account
+- **Keychain-backed key**: The master key lives in your **OS keychain** (Windows Credential Manager / macOS Keychain / libsecret), *not* a plaintext file beside the vault — real protection if your disk is compromised
+- **`run` injection**: `envlockr run -- npm run dev` injects secrets straight into the process — **no `.env` ever written to disk**
+- **Liveness `verify`**: `envlockr verify` checks whether your stored keys are still live (Stripe, OpenAI, GitHub, Slack) — catch revoked/rotated keys
+- **Profiles**: `--env prod` for isolated per-environment vaults
+- **Offline Mode**: Core commands need no internet
+- **Stream-Safe**: No `.env` on screen while coding or streaming
 - **Cross-Project Friendly**: Works with React, Node.js, Python, and more
-- **GitHub Action**: Automatically scan commits for exposed secrets ([Learn more](GITHUB_ACTION.md))
+- **GitHub Action**: Scan commits for exposed secrets ([Learn more](GITHUB_ACTION.md))
 
 ## 🚀 Quick Start
 
@@ -31,9 +33,13 @@ EnvLockr CLI is a tool for developers, streamers, and indie hackers who want ful
 # Install from PyPI (recommended)
 pip install envlockr
 
-# With clipboard support
-pip install envlockr[clipboard]
+# Recommended: keychain-backed key + clipboard support
+pip install "envlockr[keychain,clipboard]"
 ```
+
+> 💡 Without the `keychain` extra, the master key falls back to a `0600` file on
+> disk and EnvLockr warns you. Install the extra for real disk-compromise
+> protection, then run `envlockr secure-key` to migrate an existing key.
 
 <details>
 <summary>Alternative: Install from source</summary>
@@ -57,23 +63,36 @@ pip install -e .
 | delete | `envlockr delete STRIPE_KEY` | Delete a secret |
 | export | `envlockr export --output .env` | Export all secrets to .env file |
 | import | `envlockr import .env` | Import secrets from .env file |
+| run | `envlockr run -- npm run dev` | Run a command with secrets injected (no .env) |
+| verify | `envlockr verify` | Check whether stored keys are still live |
+| secure-key | `envlockr secure-key` | Move the master key into your OS keychain |
 | encrypt-vault | `envlockr encrypt-vault` | Password-protect your vault for backup |
 | decrypt-vault | `envlockr decrypt-vault` | Restore a password-protected vault |
 | export-vault | `envlockr export-vault` | Export vault for team sharing |
 | import-vault | `envlockr import-vault` | Import a shared vault file |
+| --env | `envlockr --env prod list` | Use an isolated named profile |
 | --version | `envlockr --version` | Show version number |
 ## ⚡ How to Use in Your Projects
 
 ### 🖥 Node.js / React / Vite / Next.js
 
-#### Option 1: Export to .env file
+#### Option 1 (recommended): `run` — inject secrets, no file on disk
+
+```bash
+envlockr run -- npm run dev
+```
+
+All your secrets are injected into the process environment. Nothing is written
+to disk, so there is no `.env` to accidentally commit or leak on stream.
+
+#### Option 2: Export to .env file
 
 ```bash
 envlockr export --output .env
 npm run dev
 ```
 
-#### Option 2: Inline Injection (no .env needed)
+#### Option 3: Inline Injection of a single value
 
 ```bash
 export STRIPE_KEY=$(envlockr get STRIPE_KEY)
@@ -100,17 +119,27 @@ rm .env  # Delete the unencrypted file
 
 👉 **[See framework-specific examples](EXAMPLES.md)** - React, Next.js, Python, Docker, and more!
 
-## 📦 Local Storage
+## 📦 Local Storage & Security Model
 
-All your secrets are encrypted and stored in:
+Your secret **values** are encrypted with Fernet (AES-128-CBC + HMAC) and stored in:
 
 ```
-~/.envlockr/vault.json
-~/.envlockr/key.key
+~/.envlockr/vault.json        # encrypted secret values
 ```
 
-- ✅ AES-256 level security
+The **master key** is stored in one of two places:
+
+- **OS keychain** (when `envlockr[keychain]` is installed) — the key never
+  touches the filesystem, so reading `vault.json` alone is useless to an attacker.
+- **`~/.envlockr/key.key`** (`0600`) as a fallback when no keychain is available.
+  In this mode the key sits next to the vault, so disk access = full access —
+  EnvLockr warns you and you can upgrade with `envlockr secure-key`.
+
+For backups and team sharing, `encrypt-vault` bundles the vault + key behind a
+password using **PBKDF2-HMAC-SHA256 (600k iterations) with a random per-file salt**.
+
 - ✅ No external cloud or server dependency
+- ✅ Honest about where the key lives — no false "uncrackable" claims
 
 ## 🔍 GitHub Action - Prevent Secret Leaks
 
@@ -141,6 +170,25 @@ jobs:
 - ✅ Detects AWS, Stripe, GitHub, Google, OpenAI, and more
 
 👉 [Full GitHub Action Documentation](GITHUB_ACTION.md)
+
+## 🆚 How EnvLockr is different
+
+There are great tools in this space — EnvLockr fills the gaps they leave:
+
+| | EnvLockr | dotenvx | SOPS | gitleaks |
+|---|---|---|---|---|
+| Key off-disk (OS keychain) | ✅ | ❌ (`.env.keys` on disk) | ⚠️ external KMS/age setup | n/a |
+| Run cmd with no `.env` written | ✅ `run --` | ⚠️ decrypts to env, needs config | ❌ | n/a |
+| Check if stored keys are still **live** | ✅ `verify` | ❌ | ❌ | ❌ |
+| Zero-config, single command | ✅ | ⚠️ multi-step workflow | ❌ steep | ✅ (scan only) |
+| Manages secrets *and* scans for leaks | ✅ | ❌ (manager only) | ❌ | ❌ (scanner only) |
+
+- **vs dotenvx** — dotenvx keeps the decryption key in a `.env.keys` file on disk;
+  EnvLockr puts it in your OS keychain and can run your app with **nothing written to disk**.
+- **vs gitleaks/trufflehog** — those only *find* leaks. EnvLockr finds them (wraps
+  gitleaks when present) **and** gives you a place to put the secrets, plus
+  `verify` to confirm a leaked/old key is actually still live.
+- **vs SOPS/Vault** — no KMS, no server, no YAML — one `pip install` and you're running.
 
 ## 💬 Why EnvLockr?
 
