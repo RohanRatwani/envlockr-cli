@@ -12,9 +12,7 @@ envlockr.egg-info/
 personal/
 MARKETING_PLAN.md
 
-# Local testing (not for repo)
-tests/
-run_tests.py
+# Test cache / coverage artifacts
 .pytest_cache/
 .coverage
 htmlcov/

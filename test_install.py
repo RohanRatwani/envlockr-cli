@@ -8,6 +8,14 @@ import subprocess
 import sys
 import os
 
+# Make emoji output safe on Windows cp1252 consoles.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding='utf-8', errors='replace')
+    except (AttributeError, ValueError):
+        pass
+
+
 def run_command(cmd):
     """Run a command and return output"""
     try:
@@ -115,12 +123,18 @@ def test_cli():
     # Test 9: Check dependencies
     print("\n9️⃣  Testing dependencies...")
     try:
-        import cryptography
-        import pyperclip
-        print("   ✅ All dependencies installed")
+        import cryptography  # required
+        print("   ✅ Required dependency 'cryptography' installed")
+        # pyperclip and keyring are optional extras — report but don't fail.
+        for opt in ("pyperclip", "keyring"):
+            try:
+                __import__(opt)
+                print(f"   ✅ Optional '{opt}' installed")
+            except ImportError:
+                print(f"   ℹ️  Optional '{opt}' not installed (feature disabled)")
         tests_passed += 1
     except ImportError as e:
-        print(f"   ❌ Missing dependency: {e}")
+        print(f"   ❌ Missing required dependency: {e}")
         tests_failed += 1
     
     # Test 10: Check vault location

@@ -6,7 +6,7 @@
 
 set -e
 
-echo "🔐 EnvLockr Secret Scanner v1.1"
+echo "🔐 EnvLockr Secret Scanner v2.0"
 echo "================================"
 echo ""
 
@@ -23,6 +23,31 @@ NC='\033[0m' # No Color
 SCAN_MODE="${SCAN_MODE:-normal}"
 
 echo "🔧 Scan mode: $SCAN_MODE"
+echo ""
+
+# Prefer gitleaks when available — it has far broader, better-maintained
+# detection than the built-in regex set below. The built-in scanner remains
+# a zero-dependency fallback for environments without gitleaks installed.
+if command -v gitleaks >/dev/null 2>&1; then
+  echo "🛡️  gitleaks detected — using it for detection."
+  echo ""
+  GITLEAKS_ARGS=(detect --no-banner --redact --report-path secret_scan_results.txt)
+  if [ -n "${GITHUB_BASE_REF:-}" ]; then
+    GITLEAKS_ARGS+=(--log-opts="origin/$GITHUB_BASE_REF..HEAD")
+  fi
+  if gitleaks "${GITLEAKS_ARGS[@]}"; then
+    echo -e "${GREEN}✅ No secrets detected by gitleaks!${NC}"
+    echo ""
+    echo "💡 Tip: verify your stored keys are still live with: envlockr verify"
+    exit 0
+  else
+    echo -e "${RED}🚨 gitleaks detected potential secrets! See report above.${NC}"
+    echo "🔗 Store them safely instead: envlockr add SECRET_NAME"
+    exit 1
+  fi
+fi
+
+echo "ℹ️  gitleaks not found — using built-in regex scanner (install gitleaks for better coverage)."
 echo ""
 
 # High-confidence patterns used in ALL modes
@@ -203,7 +228,7 @@ if [ "$FOUND_SECRETS" = true ]; then
   echo ""
   echo "1️⃣  Remove the secrets from your code"
   echo "2️⃣  Store them securely with EnvLockr:"
-  echo "    ${GREEN}python envlockr.py add SECRET_NAME${NC}"
+  echo "    ${GREEN}envlockr add SECRET_NAME${NC}"
   echo ""
   echo "3️⃣  Use environment variables in your code:"
   echo "    ${GREEN}const apiKey = process.env.API_KEY;${NC}"

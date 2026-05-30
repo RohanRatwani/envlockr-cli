@@ -4,6 +4,9 @@ cryptography>=3.4.0
 # Optional: Clipboard support
 pyperclip>=1.8.0
 
+# Optional: OS keychain master-key storage (recommended)
+keyring>=23.0.0
+
 # Development dependencies (optional)
 # pytest>=7.0.0
 # black>=22.0.0
