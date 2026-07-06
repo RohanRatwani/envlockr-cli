@@ -21,7 +21,7 @@ All notable changes to EnvLockr will be documented in this file.
 - **`envlockr run -- <cmd>`** — run any command with secrets injected into its
   environment. No `.env` file is written to disk. Supports `--only A,B`.
 - **`envlockr verify [NAME]`** — liveness-check stored keys against their provider
-  (Stripe, OpenAI, GitHub, Slack) to catch revoked or rotated keys.
+  (Stripe, OpenAI, Anthropic, GitHub, Slack) to catch revoked or rotated keys.
 - **`envlockr secure-key`** — migrate an existing on-disk key into the OS keychain.
 - **Profiles** — `--env <name>` / `ENVLOCKR_ENV` for isolated per-environment
   vaults under `<base>/envs/<name>/`. The `default` profile is unchanged.
@@ -93,7 +93,7 @@ All notable changes to EnvLockr will be documented in this file.
 - **CLI Commands**: Add, get, list, copy, update, delete, export, and import secrets
 - **PyPI Package**: Install with `pip install envlockr`
 - **Import from .env**: Migrate existing .env files with `envlockr import`
-- **AES-256 Encryption**: Military-grade encryption for local secret storage
+- **Encrypted Storage**: Fernet (AES-128-CBC + HMAC-SHA256) authenticated encryption for local secret storage
 - **Colored Output**: Beautiful terminal output with success/error/warning colors
 - **Stream-Safe**: No .env files exposed during streaming or screen sharing
 - **Cross-Platform**: Works on Windows, macOS, and Linux

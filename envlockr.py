@@ -791,6 +791,12 @@ def _detect_and_verify(value, timeout):
                             {"Authorization": f"Basic {token}"}, timeout)
         return ('Stripe', classify(code))
 
+    if value.startswith('sk-ant-'):
+        code = _http_status("https://api.anthropic.com/v1/models",
+                            {"x-api-key": value,
+                             "anthropic-version": "2023-06-01"}, timeout)
+        return ('Anthropic', classify(code))
+
     if value.startswith(('sk-', 'sk-proj-')):
         code = _http_status("https://api.openai.com/v1/models",
                             {"Authorization": f"Bearer {value}"}, timeout)

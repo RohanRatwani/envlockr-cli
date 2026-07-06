@@ -567,6 +567,13 @@ class TestVerify(unittest.TestCase):
         self.assertEqual(provider, "OpenAI")
         self.assertEqual(status, "invalid")
 
+    def test_detect_anthropic_not_openai(self):
+        """sk-ant- keys must route to Anthropic, not fall through to OpenAI."""
+        with patch.object(envlockr, '_http_status', return_value=200):
+            provider, status = envlockr._detect_and_verify("sk-ant-api03-xyz", 5)
+        self.assertEqual(provider, "Anthropic")
+        self.assertEqual(status, "live")
+
     def test_detect_github(self):
         with patch.object(envlockr, '_http_status', return_value=200):
             provider, status = envlockr._detect_and_verify("ghp_token", 5)

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="banner.png" alt="EnvLockr - Secure Your Environment Variables Locally" />
+  <img src="banner.jpg" alt="EnvLockr - Secure Your Environment Variables Locally" />
 </p>
 
 # 🔐 EnvLockr CLI
@@ -22,7 +22,7 @@ EnvLockr CLI is a tool for developers, streamers, and indie hackers who want ful
 - **Local-first**: All secrets stored encrypted on your machine — no cloud, no account
 - **Keychain-backed key**: The master key lives in your **OS keychain** (Windows Credential Manager / macOS Keychain / libsecret), *not* a plaintext file beside the vault — real protection if your disk is compromised
 - **`run` injection**: `envlockr run -- npm run dev` injects secrets straight into the process — **no `.env` ever written to disk**
-- **Liveness `verify`**: `envlockr verify` checks whether your stored keys are still live (Stripe, OpenAI, GitHub, Slack) — catch revoked/rotated keys
+- **Liveness `verify`**: `envlockr verify` checks whether your stored keys are still live (Stripe, OpenAI, Anthropic, GitHub, Slack) — catch revoked/rotated keys
 - **Profiles**: `--env prod` for isolated per-environment vaults
 - **Offline Mode**: Core commands need no internet
 - **Stream-Safe**: No `.env` on screen while coding or streaming
@@ -197,9 +197,10 @@ There are great tools in this space — EnvLockr fills the gaps they leave:
 
 - **vs dotenvx** — dotenvx keeps the decryption key in a `.env.keys` file on disk;
   EnvLockr puts it in your OS keychain and can run your app with **nothing written to disk**.
-- **vs gitleaks/trufflehog** — those only *find* leaks. EnvLockr finds them (wraps
-  gitleaks when present) **and** gives you a place to put the secrets, plus
-  `verify` to confirm a leaked/old key is actually still live.
+- **vs gitleaks/trufflehog** — those are scanners, not managers. trufflehog can
+  verify secrets it *finds by scanning*; EnvLockr's `verify` does that for the
+  vault you actively manage — plus it gives you a place to put the secrets
+  (and wraps gitleaks for scanning when present).
 - **vs SOPS/Vault** — no KMS, no server, no YAML — one `pip install` and you're running.
 
 ## 💬 Why EnvLockr?
