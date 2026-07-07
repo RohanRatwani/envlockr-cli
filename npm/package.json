@@ -1,0 +1,36 @@
+{
+  "name": "envlockr",
+  "version": "2.0.0",
+  "description": "Local-first encrypted secrets CLI — OS-keychain key storage, run-with-secrets injection, and API key liveness checks. Node wrapper for the Python CLI.",
+  "bin": {
+    "envlockr": "bin/envlockr.js"
+  },
+  "files": [
+    "bin/",
+    "README.md"
+  ],
+  "keywords": [
+    "secrets",
+    "environment-variables",
+    "dotenv",
+    "encryption",
+    "security",
+    "cli",
+    "env",
+    "secrets-management",
+    "local-first"
+  ],
+  "author": "Rohan Ratwani <ratwani.rohan@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RohanRatwani/envlockr-cli.git"
+  },
+  "homepage": "https://envlockr.dev",
+  "bugs": {
+    "url": "https://github.com/RohanRatwani/envlockr-cli/issues"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
