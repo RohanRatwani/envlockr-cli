@@ -291,11 +291,27 @@ def decrypt_secret(fernet, encrypted_value):
 
 
 # CLI Commands
+def _resolve_secret_value(args, prompt):
+    """Get a secret value from --value, --stdin, or an interactive prompt.
+
+    Falls back to getpass only when attached to a TTY, so piping into the
+    command (CI / scripts) never hangs waiting on console input.
+    """
+    if getattr(args, 'value', None) is not None:
+        return args.value
+    if getattr(args, 'stdin', False):
+        return sys.stdin.readline().rstrip('\n')
+    if not sys.stdin.isatty():
+        # Piped input without --stdin: read it rather than blocking on getpass.
+        return sys.stdin.readline().rstrip('\n')
+    return getpass.getpass(prompt=prompt)
+
+
 def add_secret(args):
     """Add a new secret to the vault"""
     fernet = load_or_create_key()
     vault = load_vault()
-    
+
     if args.name in vault and not getattr(args, 'force', False):
         print_warning(f"Secret '{args.name}' already exists.")
         response = input("Overwrite? [y/N]: ").strip().lower()
@@ -303,11 +319,11 @@ def add_secret(args):
             print_info("Operation cancelled.")
             return
     
-    secret = getpass.getpass(prompt="Enter secret value: ")
+    secret = _resolve_secret_value(args, "Enter secret value: ")
     if not secret:
         print_error("Secret value cannot be empty.")
         return
-    
+
     encrypted = fernet.encrypt(secret.encode()).decode()
     vault[args.name] = encrypted
     save_vault(vault)
@@ -396,11 +412,11 @@ def update_secret(args):
         print_info("Use 'envlockr add' to create a new secret.")
         return
     
-    secret = getpass.getpass(prompt="Enter new secret value: ")
+    secret = _resolve_secret_value(args, "Enter new secret value: ")
     if not secret:
         print_error("Secret value cannot be empty.")
         return
-    
+
     encrypted = fernet.encrypt(secret.encode()).decode()
     vault[args.name] = encrypted
     save_vault(vault)
@@ -775,6 +791,12 @@ def _detect_and_verify(value, timeout):
                             {"Authorization": f"Basic {token}"}, timeout)
         return ('Stripe', classify(code))
 
+    if value.startswith('sk-ant-'):
+        code = _http_status("https://api.anthropic.com/v1/models",
+                            {"x-api-key": value,
+                             "anthropic-version": "2023-06-01"}, timeout)
+        return ('Anthropic', classify(code))
+
     if value.startswith(('sk-', 'sk-proj-')):
         code = _http_status("https://api.openai.com/v1/models",
                             {"Authorization": f"Bearer {value}"}, timeout)
@@ -874,6 +896,8 @@ Documentation: https://github.com/RohanRatwani/envlockr-cli
     # Add
     add_parser = subparsers.add_parser('add', help='Add a new secret')
     add_parser.add_argument('name', help='Name of the secret (e.g., API_KEY)')
+    add_parser.add_argument('--value', '-V', default=None, help='Secret value (non-interactive; avoid in shared shells/history)')
+    add_parser.add_argument('--stdin', action='store_true', help='Read the secret value from stdin')
     add_parser.add_argument('--force', '-f', action='store_true', help='Overwrite without confirmation')
     add_parser.set_defaults(func=add_secret)
 
@@ -900,6 +924,8 @@ Documentation: https://github.com/RohanRatwani/envlockr-cli
     # Update
     update_parser = subparsers.add_parser('update', help='Update an existing secret')
     update_parser.add_argument('name', help='Name of the secret')
+    update_parser.add_argument('--value', '-V', default=None, help='New secret value (non-interactive)')
+    update_parser.add_argument('--stdin', action='store_true', help='Read the new value from stdin')
     update_parser.set_defaults(func=update_secret)
 
     # Export

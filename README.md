@@ -1,24 +1,28 @@
 <p align="center">
-  <img src="banner.png" alt="EnvLockr - Secure Your Environment Variables Locally" />
+  <img src="banner.jpg" alt="EnvLockr - Secure Your Environment Variables Locally" />
 </p>
 
 # 🔐 EnvLockr CLI
 
 [![PyPI version](https://badge.fury.io/py/envlockr.svg)](https://pypi.org/project/envlockr/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub stars](https://img.shields.io/github/stars/RohanRatwani/envlockr-cli?style=social)](https://github.com/RohanRatwani/envlockr-cli/stargazers)
 
 > Secure your environment variables — locally, encrypted, and stream-safe.
 
 EnvLockr CLI is a tool for developers, streamers, and indie hackers who want full control of their secrets without relying on cloud services.
 
+<!-- Generate with `vhs demo.tape` (see DEMO.md), then uncomment:
+<p align="center"><img src="demo.gif" alt="EnvLockr demo: add, run, verify" /></p>
+-->
+
 ## ✨ Features
 
 - **Local-first**: All secrets stored encrypted on your machine — no cloud, no account
 - **Keychain-backed key**: The master key lives in your **OS keychain** (Windows Credential Manager / macOS Keychain / libsecret), *not* a plaintext file beside the vault — real protection if your disk is compromised
 - **`run` injection**: `envlockr run -- npm run dev` injects secrets straight into the process — **no `.env` ever written to disk**
-- **Liveness `verify`**: `envlockr verify` checks whether your stored keys are still live (Stripe, OpenAI, GitHub, Slack) — catch revoked/rotated keys
+- **Liveness `verify`**: `envlockr verify` checks whether your stored keys are still live (Stripe, OpenAI, Anthropic, GitHub, Slack) — catch revoked/rotated keys
 - **Profiles**: `--env prod` for isolated per-environment vaults
 - **Offline Mode**: Core commands need no internet
 - **Stream-Safe**: No `.env` on screen while coding or streaming
@@ -72,6 +76,14 @@ pip install -e .
 | import-vault | `envlockr import-vault` | Import a shared vault file |
 | --env | `envlockr --env prod list` | Use an isolated named profile |
 | --version | `envlockr --version` | Show version number |
+
+> By default `add` prompts securely (hidden input). For scripts and CI, pass the
+> value non-interactively:
+> ```bash
+> envlockr add API_KEY --value "$API_KEY" --force      # from a variable
+> printf '%s' "$API_KEY" | envlockr add API_KEY --stdin # from stdin (no shell history)
+> ```
+
 ## ⚡ How to Use in Your Projects
 
 ### 🖥 Node.js / React / Vite / Next.js
@@ -185,9 +197,10 @@ There are great tools in this space — EnvLockr fills the gaps they leave:
 
 - **vs dotenvx** — dotenvx keeps the decryption key in a `.env.keys` file on disk;
   EnvLockr puts it in your OS keychain and can run your app with **nothing written to disk**.
-- **vs gitleaks/trufflehog** — those only *find* leaks. EnvLockr finds them (wraps
-  gitleaks when present) **and** gives you a place to put the secrets, plus
-  `verify` to confirm a leaked/old key is actually still live.
+- **vs gitleaks/trufflehog** — those are scanners, not managers. trufflehog can
+  verify secrets it *finds by scanning*; EnvLockr's `verify` does that for the
+  vault you actively manage — plus it gives you a place to put the secrets
+  (and wraps gitleaks for scanning when present).
 - **vs SOPS/Vault** — no KMS, no server, no YAML — one `pip install` and you're running.
 
 ## 💬 Why EnvLockr?
