@@ -5,6 +5,7 @@
 # 🔐 EnvLockr CLI
 
 [![PyPI version](https://badge.fury.io/py/envlockr.svg)](https://pypi.org/project/envlockr/)
+[![npm version](https://img.shields.io/npm/v/envlockr.svg)](https://www.npmjs.com/package/envlockr)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub stars](https://img.shields.io/github/stars/RohanRatwani/envlockr-cli?style=social)](https://github.com/RohanRatwani/envlockr-cli/stargazers)
@@ -39,6 +40,14 @@ pip install envlockr
 
 # Recommended: keychain-backed key + clipboard support
 pip install "envlockr[keychain,clipboard]"
+```
+
+Using an npm-centric workflow? There's an [npm wrapper](https://www.npmjs.com/package/envlockr)
+so `envlockr` works in `package.json` scripts and with `npx` (it proxies to the
+Python CLI above):
+
+```bash
+npm install -g envlockr   # wrapper — still needs the pip package installed
 ```
 
 > 💡 Without the `keychain` extra, the master key falls back to a `0600` file on

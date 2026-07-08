@@ -6,8 +6,11 @@
 # From PyPI (recommended)
 pip install envlockr
 
-# With clipboard support
-pip install envlockr[clipboard]
+# With keychain-backed key + clipboard support
+pip install "envlockr[keychain,clipboard]"
+
+# npm wrapper (for npx / package.json scripts — proxies to the pip CLI)
+npm install -g envlockr
 ```
 
 ## Commands
