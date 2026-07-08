@@ -14,9 +14,7 @@
 
 EnvLockr CLI is a tool for developers, streamers, and indie hackers who want full control of their secrets without relying on cloud services.
 
-<!-- Generate with `vhs demo.tape` (see DEMO.md), then uncomment:
 <p align="center"><img src="demo.gif" alt="EnvLockr demo: add, run, verify" /></p>
--->
 
 ## ✨ Features
 
