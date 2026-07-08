@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="banner.jpg" alt="EnvLockr - Secure Your Environment Variables Locally" />
+  <img src="https://raw.githubusercontent.com/RohanRatwani/envlockr-cli/main/banner.jpg" alt="EnvLockr - Secure Your Environment Variables Locally" />
 </p>
 
 # 🔐 EnvLockr CLI
@@ -14,7 +14,7 @@
 
 EnvLockr CLI is a tool for developers, streamers, and indie hackers who want full control of their secrets without relying on cloud services.
 
-<p align="center"><img src="demo.gif" alt="EnvLockr demo: add, run, verify" /></p>
+<p align="center"><img src="https://raw.githubusercontent.com/RohanRatwani/envlockr-cli/main/demo.gif" alt="EnvLockr demo: add, run, verify" /></p>
 
 ## ✨ Features
 
