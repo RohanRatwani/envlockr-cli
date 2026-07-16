@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "envlockr"
-version = "2.0.0"
+version = "2.0.0.post1"
 description = "Secure your environment variables — locally, encrypted, and stream-safe."
 readme = "README.md"
 license = {text = "MIT"}
