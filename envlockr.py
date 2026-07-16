@@ -814,6 +814,11 @@ def _detect_and_verify(value, timeout):
         # Slack always returns 200; body carries ok:true/false, so treat 200 as reachable.
         return ('Slack', 'unknown' if code != 200 else 'live')
 
+    if value.startswith('dop_v1_'):
+        code = _http_status("https://api.digitalocean.com/v2/account",
+                            {"Authorization" : f"Bearer {value}"},timeout)
+        return ('DigitalOcean',classify(code))
+
     return (None, 'unknown')
 
 

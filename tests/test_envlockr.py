@@ -584,6 +584,16 @@ class TestVerify(unittest.TestCase):
         self.assertIsNone(provider)
         self.assertEqual(status, "unknown")
 
+    def test_detect_digitalocean(self):
+        with patch.object(envlockr, '_http_status', return_value=200):
+            provider, status = envlockr._detect_and_verify("dop_v1_live_token", 5)
+        self.assertEqual(provider, "DigitalOcean")
+        self.assertEqual(status, "live")
+
+        with patch.object(envlockr, '_http_status', return_value=401):
+            provider, status = envlockr._detect_and_verify("dop_v1_invalid_token", 5)
+        self.assertEqual(provider, "DigitalOcean")
+        self.assertEqual(status, "invalid")
 
 class TestRunInjection(unittest.TestCase):
     """Test that `run` injects secrets into the child process environment."""
