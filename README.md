@@ -21,7 +21,7 @@ EnvLockr CLI is a tool for developers, streamers, and indie hackers who want ful
 - **Local-first**: All secrets stored encrypted on your machine — no cloud, no account
 - **Keychain-backed key**: The master key lives in your **OS keychain** (Windows Credential Manager / macOS Keychain / libsecret), *not* a plaintext file beside the vault — real protection if your disk is compromised
 - **`run` injection**: `envlockr run -- npm run dev` injects secrets straight into the process — **no `.env` ever written to disk**
-- **Liveness `verify`**: `envlockr verify` checks whether your stored keys are still live (Stripe, OpenAI, Anthropic, GitHub, Slack) — catch revoked/rotated keys
+- **Liveness `verify`**: `envlockr verify` checks whether your stored keys are still live (Stripe, OpenAI, Anthropic, GitHub, Slack, DigitalOcean) — catch revoked/rotated keys
 - **Profiles**: `--env prod` for isolated per-environment vaults
 - **Offline Mode**: Core commands need no internet
 - **Stream-Safe**: No `.env` on screen while coding or streaming
