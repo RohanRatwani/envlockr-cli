@@ -26,7 +26,7 @@ EnvLockr CLI is a tool for developers, streamers, and indie hackers who want ful
 - **Offline Mode**: Core commands need no internet
 - **Stream-Safe**: No `.env` on screen while coding or streaming
 - **Cross-Project Friendly**: Works with React, Node.js, Python, and more
-- **GitHub Action**: Scan commits for exposed secrets ([Learn more](GITHUB_ACTION.md))
+- **GitHub Action**: Scan commits for exposed secrets ([Learn more](docs/GITHUB_ACTION.md))
 
 ## 🚀 Quick Start
 
@@ -136,7 +136,7 @@ rm .env  # Delete the unencrypted file
 - NestJS
 - and more!
 
-👉 **[See framework-specific examples](EXAMPLES.md)** - React, Next.js, Python, Docker, and more!
+👉 **[See framework-specific examples](docs/EXAMPLES.md)** - React, Next.js, Python, Docker, and more!
 
 ## 📦 Local Storage & Security Model
 
@@ -188,7 +188,7 @@ jobs:
 - ✅ Posts helpful comments with fix instructions
 - ✅ Detects AWS, Stripe, GitHub, Google, OpenAI, and more
 
-👉 [Full GitHub Action Documentation](GITHUB_ACTION.md)
+👉 [Full GitHub Action Documentation](docs/GITHUB_ACTION.md)
 
 ## 🆚 How EnvLockr is different
 
@@ -218,9 +218,9 @@ There are great tools in this space — EnvLockr fills the gaps they leave:
 
 ## 📚 Documentation
 
-- **[Quick Reference Guide](QUICKSTART.md)** - Common commands and workflows
-- **[Framework Examples](EXAMPLES.md)** - React, Next.js, Python, Node.js, Docker
-- **[GitHub Action Setup](GITHUB_ACTION.md)** - Prevent secret leaks in CI/CD
+- **[Quick Reference Guide](docs/QUICKSTART.md)** - Common commands and workflows
+- **[Framework Examples](docs/EXAMPLES.md)** - React, Next.js, Python, Node.js, Docker
+- **[GitHub Action Setup](docs/GITHUB_ACTION.md)** - Prevent secret leaks in CI/CD
 - **[Contributing Guide](CONTRIBUTING.md)** - Help improve EnvLockr
 - **[Changelog](CHANGELOG.md)** - Version history
 

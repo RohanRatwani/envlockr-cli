@@ -191,7 +191,7 @@ const apiKey = process.env.API_KEY;
 
 ## Need Help?
 
-- 📖 [Full Documentation](README.md)
+- 📖 [Full Documentation](../README.md)
 - 🐛 [Report Issues](https://github.com/RohanRatwani/envlockr-cli/issues)
 - 💬 [Discussions](https://github.com/RohanRatwani/envlockr-cli/discussions)
 - 🌐 [Website](https://envlockr.netlify.app)

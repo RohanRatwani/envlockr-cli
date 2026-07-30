@@ -46,4 +46,4 @@ curl -sSL https://raw.githubusercontent.com/RohanRatwani/envlockr-cli/main/.gith
 
 ## Documentation
 
-For full setup instructions, see [GITHUB_ACTION.md](../GITHUB_ACTION.md)
+For full setup instructions, see [GITHUB_ACTION.md](../docs/GITHUB_ACTION.md)

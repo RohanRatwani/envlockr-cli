@@ -388,6 +388,6 @@ tar -czf envlockr-backup.tar.gz ~/.envlockr
 
 ## Need Help?
 
-- 📖 [Main Documentation](README.md)
+- 📖 [Main Documentation](../README.md)
 - 🚀 [Quick Start Guide](QUICKSTART.md)
 - 💬 [GitHub Discussions](https://github.com/RohanRatwani/envlockr-cli/discussions)
