@@ -5,18 +5,18 @@ vault directory so your real secrets are never touched.
 
 ## Option A — VHS (recommended, deterministic GIF)
 
-[VHS](https://github.com/charmbracelet/vhs) turns the included `demo.tape` into a
-clean GIF with no manual typing.
+[VHS](https://github.com/charmbracelet/vhs) turns the included `assets/demo.tape`
+into a clean GIF with no manual typing.
 
 ```bash
 # install: brew install vhs   (or see the VHS repo for Linux/Windows)
-vhs demo.tape          # → demo.gif
+cd assets && vhs demo.tape   # → assets/demo.gif
 ```
 
 Then reference it at the top of the README:
 
 ```markdown
-<p align="center"><img src="demo.gif" alt="EnvLockr demo" /></p>
+<p align="center"><img src="assets/demo.gif" alt="EnvLockr demo" /></p>
 ```
 
 ## Option B — asciinema (terminal cast)
