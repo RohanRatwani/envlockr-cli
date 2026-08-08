@@ -16,6 +16,8 @@ EnvLockr CLI is a tool for developers, streamers, and indie hackers who want ful
 
 <p align="center"><img src="https://raw.githubusercontent.com/RohanRatwani/envlockr-cli/main/assets/demo.gif" alt="EnvLockr demo: add, run, verify" /></p>
 
+<p align="center"><b>If that solves a problem you've had, a ⭐ on GitHub is how other devs find this — takes 2 seconds:</b><br><a href="https://github.com/RohanRatwani/envlockr-cli">github.com/RohanRatwani/envlockr-cli</a></p>
+
 ## ✨ Features
 
 - **Local-first**: All secrets stored encrypted on your machine — no cloud, no account
