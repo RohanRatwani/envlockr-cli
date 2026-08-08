@@ -16,3 +16,6 @@ MARKETING_PLAN.md
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Local Claude Code config (dev-server config, permission settings)
+.claude/
